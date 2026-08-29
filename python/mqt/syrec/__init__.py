@@ -64,3 +64,5 @@ __all__ = [
     "line_aware_synthesis",
     "simple_simulation",
 ]
+
+# CI smoke test for the reusable-python-ci.yml umbrella workflow.

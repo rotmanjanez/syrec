@@ -311,8 +311,6 @@ cache-keys = [
   { file = "bindings/**/*.cpp"},
 ]
 
-[tool.uv.sources]
-mqt-syrec = { workspace = true }
 
 
 [dependency-groups]

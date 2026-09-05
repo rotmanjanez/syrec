@@ -65,33 +65,48 @@ def _run_tests(
     pytest_run_args: Sequence[str] = (),
 ) -> None:
     env = {"UV_PROJECT_ENVIRONMENT": session.virtualenv.location}
-    if shutil.which("cmake") is None and shutil.which("cmake3") is None:
-        session.install("cmake")
-    if shutil.which("ninja") is None:
-        session.install("ninja")
+    if "MQT_WHEELHOUSE" in os.environ:
+        # CI has built the wheels already and points uv at them. `uv sync` would
+        # rebuild the project from the tree, so leave it out and install the wheel.
+        session.run(
+            "uv",
+            "sync",
+            "--no-dev",
+            "--group",
+            "test",
+            "--no-install-project",
+            *install_args,
+            env=env,
+        )
+        session.run("uv", "pip", "install", "--python", session.virtualenv.location, "mqt-syrec", env=env)
+    else:
+        if shutil.which("cmake") is None and shutil.which("cmake3") is None:
+            session.install("cmake")
+        if shutil.which("ninja") is None:
+            session.install("ninja")
 
-    # install build and test dependencies on top of the existing environment
-    session.run(
-        "uv",
-        "sync",
-        "--inexact",
-        "--only-group",
-        "build",
-        "--only-group",
-        "test",
-        *install_args,
-        env=env,
-    )
-    session.run(
-        "uv",
-        "sync",
-        "--inexact",
-        "--no-dev",  # do not auto-install dev dependencies
-        "--no-build-isolation-package",
-        "mqt-syrec",  # build the project without isolation
-        *install_args,
-        env=env,
-    )
+        # install build and test dependencies on top of the existing environment
+        session.run(
+            "uv",
+            "sync",
+            "--inexact",
+            "--only-group",
+            "build",
+            "--only-group",
+            "test",
+            *install_args,
+            env=env,
+        )
+        session.run(
+            "uv",
+            "sync",
+            "--inexact",
+            "--no-dev",  # do not auto-install dev dependencies
+            "--no-build-isolation-package",
+            "mqt-syrec",  # build the project without isolation
+            *install_args,
+            env=env,
+        )
     session.run(
         "uv",
         "run",

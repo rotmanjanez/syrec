@@ -138,6 +138,7 @@ filterwarnings = ["error"]
 
 [tool.coverage]
 run.source = ["mqt.syrec"]
+paths.source = ["python/mqt/syrec", "*/site-packages/mqt/syrec"]
 run.core = "sysmon"
 run.parallel = true
 report.exclude_also = [

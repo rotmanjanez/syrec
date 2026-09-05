@@ -17,7 +17,7 @@ permissions: {}
 jobs:
   change-detection:
     name: 🔍 Change
-    uses: rotmanjanez/workflows/.github/workflows/reusable-change-detection.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-change-detection.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     permissions:
       contents: read
 
@@ -25,12 +25,11 @@ jobs:
     name: 🐍 Lint
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-python-linter)
-    uses: rotmanjanez/workflows/.github/workflows/reusable-python-linter.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-python-linter.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     with:
       check-stubs: true
       enable-ty: true
       enable-mypy: false
-    secrets: inherit
     permissions:
       contents: read
 
@@ -38,10 +37,9 @@ jobs:
     name: 🐍 Build
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-python-tests) || fromJSON(needs.change-detection.outputs.run-cd)
-    uses: rotmanjanez/workflows/.github/workflows/reusable-python-build.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-python-build.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     with:
       compiled: true
-    secrets: inherit
     permissions:
       contents: read
 
@@ -53,12 +51,11 @@ jobs:
       && fromJSON(needs.change-detection.outputs.run-python-tests)
       && needs.python-lint.result != 'failure'
       && needs.python-build.result == 'success'
-    uses: rotmanjanez/workflows/.github/workflows/reusable-python-tests.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-python-tests.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     with:
       compiled: true
       # the fork is not registered with Codecov; the upload would always fail
       enable-coverage: false
-    secrets: inherit
     permissions:
       contents: read
       id-token: write
@@ -67,7 +64,7 @@ jobs:
     name: 🇨 Lint
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-linter)
-    uses: rotmanjanez/workflows/.github/workflows/reusable-cpp-linter.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-cpp-linter.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     with:
       clang-version: 20
       build-project: true
@@ -82,11 +79,10 @@ jobs:
     name: 🇨 Test
     needs: change-detection
     if: fromJSON(needs.change-detection.outputs.run-cpp-tests)
-    uses: rotmanjanez/workflows/.github/workflows/reusable-cpp-tests.yml@ea1ac60d60d768749456ac3b948c006612594fe6 # feat/python-version-matrix
+    uses: rotmanjanez/workflows/.github/workflows/reusable-cpp-tests.yml@59233026ae30b35ee5f3f9c7adb81b17054dc631 # feat/python-version-matrix
     with:
       # the fork is not registered with Codecov; the upload would always fail
       enable-coverage: false
-    secrets: inherit
     permissions:
       contents: read
       id-token: write
@@ -95,7 +91,15 @@ jobs:
   required-checks-pass:
     name: 🚦 Check
     if: always()
-    needs: [change-detection, python-lint, python-build, python-tests, cpp-lint, cpp-tests]
+    needs:
+      [
+        change-detection,
+        python-lint,
+        python-build,
+        python-tests,
+        cpp-lint,
+        cpp-tests,
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Fail if any needed job failed or was cancelled
